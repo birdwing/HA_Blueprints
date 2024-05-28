@@ -20,6 +20,15 @@ blueprint:
     input_notify_service:
       name: Notify Service
       description: "Notify service to use for to send the notifications, for example: *notify.all_phones*"
+    after_completed:
+      name: When chore is completed.
+      description: >
+        If you need something to happen after a chore is completed you can do so here.
+        The **todo_item** variable will contain the name of the item on the To-do list that was marked completed.
+        This way to can use conditions to specify an action for a particular chore. For example you could use a counter helper to keep track of how much of something is "in stock" and when a specific chore is completed increment or decrement the counter.
+      selector:
+        action:
+      default:
 
 variables:
   selected_todo_list: !input input_todo_list
@@ -95,6 +104,8 @@ action:
               message: clear_notification
               data:
                 tag: "{{ trigger.event.data.tag }}"
+          - choose: []
+            default: !input after_completed
         alias: Chore Marked as Completed
 mode: queued
 max: 10
