@@ -1,0 +1,100 @@
+blueprint:
+  name: To-do Chore Notifications
+  description: >
+    This is an automation Blueprint that generates actionable notifications from a Home Assistant To-do list.
+    These actionable notifications are sent every day at the time you specify, through the notify service that you enter.
+    It will generate 1 notification for each passed due item, with the ability to mark the item as completed right from the notification.
+  domain: automation
+  input:
+    input_notification_time:
+      name: Notification Time
+      description: Time of day to send the notifications.
+      selector:
+        time:
+    input_todo_list:
+      name: To-do List
+      description: Select the To-do list you want to create Chore notifications from.
+      selector:
+        entity:
+          domain: todo
+    input_notify_service:
+      name: Notify Service
+      description: "Notify service to use for to send the notifications, for example: *notify.all_phones*"
+
+variables:
+  selected_todo_list: !input input_todo_list
+  notification_group: "{{selected_todo_list ~ ' chores'}}"
+trigger:
+  - platform: time
+    at: !input input_notification_time
+    id: Notify
+  - platform: event
+    event_type: mobile_app_notification_action
+    id: Mark
+    event_data: {}
+condition: []
+action:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id:
+              - Notify
+          - condition: numeric_state
+            entity_id: !input input_todo_list
+            above: 0
+        sequence:
+          - service: todo.get_items
+            metadata: {}
+            data:
+              status: needs_action
+            target:
+              entity_id: !input input_todo_list
+            response_variable: chores
+          - repeat:
+              sequence:
+                - if:
+                    - condition: template
+                      value_template: "{{ repeat.item.due | as_datetime | as_local <= now() }}"
+                  then:
+                    - service: !input input_notify_service
+                      data:
+                        data:
+                          actions:
+                            - action: "{{ selected_todo_list ~ ' ' ~ repeat.item.uid }}"
+                              title: Mark Done!
+                          group: "{{ notification_group }}"
+                          tag: "{{ selected_todo_list ~ ' ' ~ repeat.item.uid }}"
+                        message: >
+                          {{ repeat.item.description | default('You have a chore
+                          to complete!') }}
+                        title: |
+                          {{ 'Chore - ' ~ repeat.item.summary }}
+              for_each: "{{ chores[selected_todo_list]['items'] }}"
+        alias: Time to Send Notifications
+      - conditions:
+          - condition: trigger
+            id:
+              - Mark
+          - condition: template
+            value_template: "{{ trigger.event.data.group == notification_group }}"
+        sequence:
+          - variables:
+              todo_item: "{{ trigger.event.data.title[8:] }}"
+          - service: todo.update_item
+            metadata: {}
+            data:
+              item: "{{ todo_item }}"
+              status: completed
+            target:
+              entity_id: !input input_todo_list
+          - alias: >-
+              Clear All Notifications for this Chore, in case it was sent to
+              more than 1 phone.
+            service: !input input_notify_service
+            data:
+              message: clear_notification
+              data:
+                tag: "{{ trigger.event.data.tag }}"
+        alias: Chore Marked as Completed
+mode: queued
+max: 10
