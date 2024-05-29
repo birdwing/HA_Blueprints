@@ -27,7 +27,7 @@ These actionable notifications are sent every day at the time you specify, throu
 It will generate 1 notification for each passed due item, with the ability to mark the item as completed right from the notification.
 There is also an optional *When chore is completed* actions section. This allows you to define actions to run when any chore is marked complete (from the notification). There is also a variable called "todo_item" which holds the name of the completed action. Using this variable along with conditions it is possible to run different actions based on the name of the completed chore.
 
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fbirdwing%2FHA_Blueprints%2Fblob%2Fmain%2Fautomations%2Fto-do_chore_notifications.yaml)
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fbirdwing%2FHA_Blueprints%2Fblob%2Fmain%2Fautomations%2Fto-do_chore_notifications%2Fto-do_chore_notifications.yaml)
 
 #### 📂 Files
 * [to-do_chore_notifications.yaml](automations/to-do_chore_notifications/to-do_chore_notifications.yaml)
