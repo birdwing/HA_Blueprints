@@ -34,7 +34,7 @@ This is a limitation of IOS, and there is no way to change this functionality.
 If you have a task/chore that requires having something in stock, such as Air filters or Chlorine Tablets, you can create a Home Assistant [Counter Helper](https://www.home-assistant.io/integrations/counter/)
 to keep track of how much you have in stock.
 Then when your "Replace Air Conditioner Tablets" task/chore is marked complete on your to-do list, you can call the [counter.decrement](https://www.home-assistant.io/integrations/counter/#service-counterdecrement) service
-for that Counter Helper to keep automatically update how much is left in stock.
+for that Counter Helper to automatically update how much is left in stock.
 
 *Yaml put into the "When chore is completed" blueprint input.*
 ```yaml
@@ -49,8 +49,7 @@ choose:
           entity_id: counter.ac_tablets_in_stock
         data: {}
 ```
-The important part is the *template condition's* **value_template** where we compare the **todo_item** variable, which is the task/chore that was just marked done, with the name of the chore we want to perform that
-specific action for:
+The important part is the *template condition's* **value_template** where we compare the **todo_item** variable, which is the task/chore that was just marked done, with the name of the chore we want to perform that specific action for:
 ```yaml
 value_template: "{{ todo_item == 'Replace Air Conditioner Tablets' }}"
 ```
