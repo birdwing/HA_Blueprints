@@ -73,6 +73,10 @@ action:
                               title: Mark Done!
                           group: "{{ notification_group }}"
                           tag: "{{ selected_todo_list ~ ' ' ~ repeat.item.uid }}"
+                          action_data:
+                            group: "{{ notification_group }}"
+                            title: "{{ 'Chore - ' ~ repeat.item.summary }}"
+                            tag: "{{ selected_todo_list ~ ' ' ~ repeat.item.uid }}"
                         message: >
                           {{ repeat.item.description | default('You have a chore
                           to complete!') }}
@@ -85,10 +89,26 @@ action:
             id:
               - Mark
           - condition: template
-            value_template: "{{ trigger.event.data.group == notification_group }}"
+            value_template: >
+              {% if 'action_data' in trigger.event.data %}
+                {{ trigger.event.data.action_data.group == notification_group }}
+              {% else %}
+                {{ trigger.event.data.group == notification_group }}
+              {% endif %}
         sequence:
           - variables:
-              todo_item: "{{ trigger.event.data.title[8:] }}"
+              todo_item: >
+                {% if 'action_data' in trigger.event.data %}
+                  {{ trigger.event.data.action_data.title[8:] }}
+                {% else %}
+                  {{ trigger.event.data.title[8:] }}
+                {% endif %}
+              notification_tag: >
+                {% if 'action_data' in trigger.event.data %}
+                  {{ trigger.event.data.action_data.tag }}
+                {% else %}
+                  {{ trigger.event.data.tag }}
+                {% endif %}
           - service: todo.update_item
             metadata: {}
             data:
@@ -103,7 +123,7 @@ action:
             data:
               message: clear_notification
               data:
-                tag: "{{ trigger.event.data.tag }}"
+                tag: "{{ notification_tag }}"
           - choose: []
             default: !input after_completed
         alias: Chore Marked as Completed
