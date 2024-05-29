@@ -24,6 +24,7 @@ blueprint:
       name: When chore is completed.
       description: >
         If you need something to happen after a chore is completed you can do so here.
+        **Note:** These actions will only run if the chore is marked done *via the notification*.
         The **todo_item** variable will contain the name of the item on the To-do list that was marked completed.
         This way to can use conditions to specify an action for a particular chore. For example you could use a counter helper to keep track of how much of something is "in stock" and when a specific chore is completed increment or decrement the counter.
       selector:
