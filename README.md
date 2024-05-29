@@ -31,3 +31,4 @@ There is also an optional *When chore is completed* actions section. This allows
 
 #### 📂 Files
 * [to-do_chore_notifications.yaml](https://github.com/birdwing/HA_Blueprints/blob/main/automations/to-do_chore_notifications.yaml)
+* [to-do_chore_notifications.md](https://github.com/birdwing/HA_Blueprints/blob/main/automations/to-do_chore_notifications.md)
