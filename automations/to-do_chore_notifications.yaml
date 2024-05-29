@@ -3,7 +3,7 @@ blueprint:
   author: birdwing
   homeassistant:
     min_version: 2023.11.0
-  description: >
+  description: "
     ## Create actionable notifications from a Home Assistant To-do list!
     
     These actionable notifications are sent every day at the time you specify in *Notification Time*.
@@ -14,6 +14,7 @@ blueprint:
     - The notifications will be **cleared from all devices it was sent to**!  
       This way, if a task is marked as done noone has a notification telling them to complete it.
     - Through the **When chore is completed.** actions you can specify any actions you would like to happen after a task is marked as done.
+    "
   domain: automation
   input:
     input_notification_time:
