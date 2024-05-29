@@ -1,9 +1,9 @@
 # 🌐 This my Home Assistant Blueprint Library
 
 Script Blueprints can be found in the [Scripts](https://github.com/birdwing/HA_Blueprints/scripts) folder and Automation Blueprints can be found in the [Automations](https://github.com/birdwing/HA_Blueprints/automations) folder.
-Each Blueprint has a file with the .yaml suffix with all the code that can be imported into Home Assistant.
-Some of the more compliated Blueprints will also have a file with the .md suffix which is a markdown description to help with set-up and usage of the blueprint.
-Always check The .md file if it exists because it will contain important information and if you want a successful install, you should read it.
+Each Blueprint has it's own folder. Inside that folder is a file with the .yaml suffix with all the code that can be imported into Home Assistant.
+Some of the more compliated Blueprints will also have a file README.md file to help with set-up and usage of the blueprint.
+Always check The README.md file if it exists because it will contain important information and if you want a successful install, you should read it.
 
 ## ⚙ Want to request a new feature request or found a BUG?
 
@@ -30,5 +30,5 @@ There is also an optional *When chore is completed* actions section. This allows
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fbirdwing%2FHA_Blueprints%2Fblob%2Fmain%2Fautomations%2Fto-do_chore_notifications.yaml)
 
 #### 📂 Files
-* [to-do_chore_notifications.yaml](https://github.com/birdwing/HA_Blueprints/blob/main/automations/to-do_chore_notifications.yaml)
-* [to-do_chore_notifications.md](https://github.com/birdwing/HA_Blueprints/blob/main/automations/to-do_chore_notifications.md)
+* [to-do_chore_notifications.yaml](https://github.com/birdwing/HA_Blueprints/automations/to-do_chore_notifications/to-do_chore_notifications.yaml)
+* [README.md](https://github.com/birdwing/HA_Blueprints/automations/to-do_chore_notifications/to-do_chore_notifications.md)
