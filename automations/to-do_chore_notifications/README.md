@@ -1,5 +1,6 @@
 # 🔔 To-do List Chore Notifications
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fbirdwing%2FHA_Blueprints%2Fblob%2Fmain%2Fautomations%2Fto-do_chore_notifications%2Fto-do_chore_notifications.yaml)
+![Screenshot of the Inputs for the blueprint](to-do_chore_notifications.png)
 
 ## 📓 Description
 
