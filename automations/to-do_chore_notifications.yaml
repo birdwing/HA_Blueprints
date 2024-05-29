@@ -1,9 +1,17 @@
 blueprint:
   name: To-do Chore Notifications
+  author: birdwing
+  homeassistant:
+    min_version: 2023.11.0
   description: >
-    This is an automation Blueprint that generates actionable notifications from a Home Assistant To-do list.
-    These actionable notifications are sent every day at the time you specify, through the notify service that you enter.
-    It will generate 1 notification for each passed due item, with the ability to mark the item as completed right from the notification.
+    ## Create actionable notifications from a Home Assistant To-do list!
+    These actionable notifications are sent every day at the time you specify in *Notification Time*.
+    They are sent to the every device you specify in *Devices to Notify*.
+    It will generate 1 notification for each passed due item, with the ability to mark the item as completed right from the notification!
+    ## When a Task is marked complete (from the notification):
+    - The notifications will be **cleared from all devices it was sent to**!  
+      This way, if a task is marked as done noone has a notification telling them to complete it.
+    - Through the **When chore is completed.** actions you can specify any actions you would like to happen after a task is marked as done.
   domain: automation
   input:
     input_notification_time:
@@ -17,9 +25,14 @@ blueprint:
       selector:
         entity:
           domain: todo
-    input_notify_service:
-      name: Notify Service
-      description: "Notify service to use for to send the notifications, for example: *notify.all_phones*"
+    input_notify_devices:
+      name: Devices to Notify
+      description: What devices do you want to receive the notifications?
+      default: []
+      selector:
+        device:
+          integration: mobile_app
+          multiple: true
     after_completed:
       name: When chore is completed.
       description: >
@@ -34,6 +47,7 @@ blueprint:
 variables:
   selected_todo_list: !input input_todo_list
   notification_group: "{{selected_todo_list ~ ' chores'}}"
+  notify_devices: !input input_notify_devices
 trigger:
   - platform: time
     at: !input input_notification_time
@@ -60,30 +74,36 @@ action:
             target:
               entity_id: !input input_todo_list
             response_variable: chores
-          - repeat:
+          - alias: Go through every To-do Item
+            repeat:
+              for_each: "{{ chores[selected_todo_list]['items'] }}"
               sequence:
+                - variables:
+                    chore: "{{ repeat.item }}"
                 - if:
                     - condition: template
-                      value_template: "{{ repeat.item.due | as_datetime | as_local <= now() }}"
+                      value_template: "{{ chore.due | as_datetime | as_local <= now() }}"
                   then:
-                    - service: !input input_notify_service
-                      data:
-                        data:
-                          actions:
-                            - action: "{{ selected_todo_list ~ ' ' ~ repeat.item.uid }}"
-                              title: Mark Done!
-                          group: "{{ notification_group }}"
-                          tag: "{{ selected_todo_list ~ ' ' ~ repeat.item.uid }}"
-                          action_data:
-                            group: "{{ notification_group }}"
-                            title: "{{ 'Chore - ' ~ repeat.item.summary }}"
-                            tag: "{{ selected_todo_list ~ ' ' ~ repeat.item.uid }}"
-                        message: >
-                          {{ repeat.item.description | default('You have a chore
-                          to complete!') }}
-                        title: |
-                          {{ 'Chore - ' ~ repeat.item.summary }}
-              for_each: "{{ chores[selected_todo_list]['items'] }}"
+                    - alias: Send notification to each device
+                      repeat:
+                        for_each: "{{ notify_devices }}"
+                        sequence:
+                          - service: notify.mobile_app_{{ device_attr(repeat.item, 'name') | slugify }}
+                            data:
+                              title: |
+                                {{ 'Chore - ' ~ chore.summary }}
+                              message: >
+                                {{ chore.description | default('You have a chore to complete!') }}
+                              data:
+                                actions:
+                                  - action: "{{ selected_todo_list ~ ' ' ~ chore.uid }}"
+                                    title: Mark Done!
+                                group: "{{ notification_group }}"
+                                tag: "{{ selected_todo_list ~ ' ' ~ chore.uid }}"
+                                action_data:
+                                  group: "{{ notification_group }}"
+                                  title: "{{ 'Chore - ' ~ chore.summary }}"
+                                  tag: "{{ selected_todo_list ~ ' ' ~ chore.uid }}"
         alias: Time to Send Notifications
       - conditions:
           - condition: trigger
@@ -117,14 +137,15 @@ action:
               status: completed
             target:
               entity_id: !input input_todo_list
-          - alias: >-
-              Clear All Notifications for this Chore, in case it was sent to
-              more than 1 phone.
-            service: !input input_notify_service
-            data:
-              message: clear_notification
-              data:
-                tag: "{{ notification_tag }}"
+          - alias: Clear All Notifications for this Chore, in case it was sent to more than 1 phone.
+            repeat:
+              for_each: "{{ notify_devices }}"
+              sequence:
+                - service: notify.mobile_app_{{ device_attr(repeat.item, 'name') | slugify }}
+                  data:
+                    message: clear_notification
+                    data:
+                      tag: "{{ notification_tag }}"
           - choose: []
             default: !input after_completed
         alias: Chore Marked as Completed
