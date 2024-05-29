@@ -5,10 +5,12 @@ blueprint:
     min_version: 2023.11.0
   description: >
     ## Create actionable notifications from a Home Assistant To-do list!
+    
     These actionable notifications are sent every day at the time you specify in *Notification Time*.
     They are sent to the every device you specify in *Devices to Notify*.
     It will generate 1 notification for each passed due item, with the ability to mark the item as completed right from the notification!
     ## When a Task is marked complete (from the notification):
+    
     - The notifications will be **cleared from all devices it was sent to**!  
       This way, if a task is marked as done noone has a notification telling them to complete it.
     - Through the **When chore is completed.** actions you can specify any actions you would like to happen after a task is marked as done.
