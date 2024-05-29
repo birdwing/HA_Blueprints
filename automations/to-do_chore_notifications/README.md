@@ -1,6 +1,22 @@
 # 🔔 To-do List Chore Notifications
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fbirdwing%2FHA_Blueprints%2Fblob%2Fmain%2Fautomations%2Fto-do_chore_notifications%2Fto-do_chore_notifications.yaml)
 
+## 📓 Description
+
+### Create Actionable Notifications from a Home Assistant To-do List!
+This blueprint does not use *Wait* triggers, so that means that all notification actions **will still work even after Home Assistant is restarted**!
+
+Notifications are sent every day at the time you specify in *Notification Time*.
+They are sent to the every device you specify in *Devices to Notify*.
+It will generate 1 notification for each passed due item, with the ability to mark the item as completed right from the notification!
+
+### When a Task is Marked Complete (from the notification):
+- The notifications will be **cleared from all devices it was sent to**!  
+  This way, if a task is marked as done noone has a notification telling them to complete it.
+- Through the **When chore is completed.** actions you can specify any actions you would like to happen after a task is marked as done.
+
+[View Some Example Use Cases](#-when-chore-is-completed---custom-actions-after-task-is-marked-done)
+
 ## 📗 F.A.Q
 
 ### 1. What to-do / task tracking integrations work with this Blueprint?
