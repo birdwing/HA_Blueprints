@@ -28,7 +28,7 @@ This is a limitation of IOS, and there is no way to change this functionality.
 ### Example Use Cases:
 > [!TIP]
 > A variable named **todo_item** is created when a task/chore is marked complete, this can be used within your custom actions along with Home Assistants [Chose](https://www.home-assistant.io/docs/scripts/#choose-a-group-of-actions)
-> action along with the [Template Condition](https://www.home-assistant.io/docs/scripts/conditions/#template-condition) to specify different actions for each task/chore.
+> action and [Template Condition](https://www.home-assistant.io/docs/scripts/conditions/#template-condition) to specify different actions for each task/chore.
 
 #### 1. Use a Counter Helper to Keep Track of an Item in Stock
 If you have a task/chore that requires having something in stock, such as Air filters or Chlorine Tablets, you can create a Home Assistant [Counter Helper](https://www.home-assistant.io/integrations/counter/)
