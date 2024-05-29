@@ -7,7 +7,7 @@
 This blueprint does not use *Wait* triggers, so that means that all notification actions **will still work even after Home Assistant is restarted**!
 
 Notifications are sent every day at the time you specify in *Notification Time*.
-They are sent to the every device you specify in *Devices to Notify*.
+They are sent to every device you specify in *Devices to Notify*.
 It will generate 1 notification for each passed due item, with the ability to mark the item as completed right from the notification!
 
 ### When a Task is Marked Complete (from the notification):
