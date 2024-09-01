@@ -29,12 +29,20 @@ blueprint:
         entity:
           domain: todo
     input_notify_devices:
-      name: Devices to Notify
-      description: What devices do you want to receive the notifications?
+      name: Mobile App Devices to Notify
+      description: What mobile_app devices do you want to receive the notifications?
       default: []
       selector:
         device:
           integration: mobile_app
+          multiple: true
+    input_notify_action_names:
+      name: Names of Notify Actions/Services
+      description: What custom [Notify Groups](https://www.home-assistant.io/integrations/group/#notify-groups) and other non-mobile-apps do you want to receive the notifications? This should be the group name, which is everything after `notify.` for the corresponding Action.
+      default: []
+      selector:
+        text:
+          multiline: false
           multiple: true
     after_completed:
       name: When chore is completed.
@@ -50,7 +58,19 @@ blueprint:
 variables:
   selected_todo_list: !input input_todo_list
   notification_group: "{{selected_todo_list ~ ' chores'}}"
-  notify_devices: !input input_notify_devices
+  notify_mobile_devices: !input input_notify_devices
+  notify_action_names: !input input_notify_action_names
+  notify_action_full_names: |
+    {# If only list comprehensions worked... sigh. #}
+    {% set result_namespace = namespace(items=[]) %}
+    {% for mobile_device in notify_mobile_devices %}
+      {% set result_namespace.items = result_namespace.items + ["notify.mobile_app_" + slugify(device_attr(mobile_device, 'name'))] %}
+    {% endfor %}
+    {% for action_name in notify_action_names %}
+      {% set result_namespace.items = result_namespace.items + ["notify." + action_name] %}
+    {% endfor %}
+
+    {{ result_namespace.items }}
 trigger:
   - platform: time
     at: !input input_notification_time
@@ -89,9 +109,9 @@ action:
                   then:
                     - alias: Send notification to each device
                       repeat:
-                        for_each: "{{ notify_devices }}"
+                        for_each: "{{ notify_action_full_names }}"
                         sequence:
-                          - service: notify.mobile_app_{{ device_attr(repeat.item, 'name') | slugify }}
+                          - service: "{{ repeat.item }}"
                             data:
                               title: |
                                 {{ 'Chore - ' ~ chore.summary }}
@@ -142,9 +162,9 @@ action:
               entity_id: !input input_todo_list
           - alias: Clear All Notifications for this Chore, in case it was sent to more than 1 phone.
             repeat:
-              for_each: "{{ notify_devices }}"
+              for_each: "{{ notify_action_full_names }}"
               sequence:
-                - service: notify.mobile_app_{{ device_attr(repeat.item, 'name') | slugify }}
+                - service: "{{ repeat.item }}"
                   data:
                     message: clear_notification
                     data:
