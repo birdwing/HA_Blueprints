@@ -2,7 +2,7 @@ blueprint:
   name: To-do Chore Notifications
   author: birdwing
   homeassistant:
-    min_version: 2023.11.0
+    min_version: 2024.6.0
   description: >
     **Create actionable notifications from a Home Assistant To-do list!**
     
@@ -17,43 +17,61 @@ blueprint:
     - Through the **When chore is completed.** actions you can specify any actions you would like to happen after a task is marked as done.
   domain: automation
   input:
-    input_notification_time:
-      name: Notification Time
-      description: Time of day to send the notifications.
-      selector:
-        time:
-    input_todo_list:
-      name: To-do List
-      description: Select the To-do list you want to create Chore notifications from.
-      selector:
-        entity:
-          domain: todo
-    input_notify_devices:
-      name: Mobile App Devices to Notify
-      description: What mobile_app devices do you want to receive the notifications?
-      default: []
-      selector:
-        device:
-          integration: mobile_app
-          multiple: true
-    input_notify_action_names:
-      name: Names of Notify Actions/Services
-      description: What custom [Notify Groups](https://www.home-assistant.io/integrations/group/#notify-groups) and other non-mobile-apps do you want to receive the notifications? This should be the group name, which is everything after `notify.` for the corresponding Action.
-      default: []
-      selector:
-        text:
-          multiline: false
-          multiple: true
-    after_completed:
-      name: When chore is completed.
-      description: >
-        If you need something to happen after a chore is completed you can do so here.
-        **Note:** These actions will only run if the chore is marked done *via the notification*.
-        The **todo_item** variable will contain the name of the item on the To-do list that was marked completed.
-        This way to can use conditions to specify an action for a particular chore. For example you could use a counter helper to keep track of how much of something is "in stock" and when a specific chore is completed increment or decrement the counter.
-      selector:
-        action:
-      default:
+    section_standard:
+      name: Standard Options
+      description: Typical options that nearly all users need or want to set.
+      collapsed: false
+      input:
+        input_notification_time:
+          name: Notification Time
+          description: Time of day to send the notifications.
+          selector:
+            time:
+        input_todo_list:
+          name: To-do List
+          description: Select the To-do list you want to create Chore notifications from.
+          selector:
+            entity:
+              domain: todo
+        input_notify_devices:
+          name: Mobile App Devices to Notify
+          description: What mobile_app devices do you want to receive the notifications?
+          default: []
+          selector:
+            device:
+              integration: mobile_app
+              multiple: true
+    section_advanced_notification:
+      name: Advanced Notification Options
+      description: More advanced options that add complexity and flexibility for less typical setups.
+      collapsed: true
+      input:
+        input_notify_action_names:
+          name: Names of Notify Actions/Services
+          description: What custom [Notify Groups](https://www.home-assistant.io/integrations/group/#notify-groups) and other non-mobile-apps do you want to receive the notifications? This should be the group name, which is everything after `notify.` for the corresponding Action.
+          default: []
+          selector:
+            text:
+              multiline: false
+              multiple: true
+    section_post_chore_actions:
+      name: Post-Chore Actions
+      description: Actions that are run after a chore is completed.
+      collapsed: true
+      input:
+        # This input does not follow the input_* naming convention of the others.
+        # Perhaps it should be made consistent in a future release,
+        # but that would be a breaking change.
+        after_completed:
+          name: When chore is completed.
+          description: >
+            If you need something to happen after a chore is completed you can do so here.
+            **Note:** These actions will only run if the chore is marked done *via the notification*.
+            The **todo_item** variable will contain the name of the item on the To-do list that was marked completed.
+            This way to can use conditions to specify an action for a particular chore. For example you could use a counter helper to keep track of how much of something is "in stock" and when a specific chore is completed increment or decrement the counter.
+          selector:
+            action:
+          default:
 
 variables:
   selected_todo_list: !input input_todo_list
