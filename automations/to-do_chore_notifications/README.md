@@ -42,7 +42,7 @@ This is a limitation of IOS, and there is no way to change this functionality.
 > [!TIP]
 > If this is an issue I recommend putting a note in the task name or description, on each to-do list item, to remind you to tap and hold on the notification in order to mark it as done.
 
-## 📃 *When Chore is Completed* - Custom Actions After Task is Marked Done
+## 📃 *Post-Chore Actions* - Custom Actions After Task is Marked Done
 > [!IMPORTANT]
 > These actions will only run *if the task was marked done through the notification*!
 > If the task is marked done directly through the Home Assistant To-do list screen, or from the integration screen these actions will not run.
