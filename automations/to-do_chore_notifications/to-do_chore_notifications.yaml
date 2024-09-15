@@ -19,7 +19,7 @@ blueprint:
   input:
     section_standard:
       name: Standard Options
-      description: Typical options that nearly all users need or want to set.
+      description: Typical options that all users need to set for the notifications to work.
       collapsed: false
       input:
         input_notification_time:
