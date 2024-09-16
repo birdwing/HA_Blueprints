@@ -28,8 +28,12 @@ Integrations I have tested myself are:
   - Google Tasks has the advantage of being able to create recurring tasks that will automatically "uncheck" themselves and update their due date after they are marked done.
 
 ### 2. What notify services work with this Blueprint?
-This blueprint was designed to work with the notification services provided by the Home Assistant [Companion App](https://companion.home-assistant.io/).
-It works for both Android and IOS.
+Although this blueprint was designed to work *the easiest* with the notification services provided by the Home Assistant [Companion App](https://companion.home-assistant.io/), for both Android and IOS, 
+it can also work with [Notify Groups](https://www.home-assistant.io/integrations/group/#notify-groups) and other notifiers. Seting up the groups or other notifiers can be done in the **Advanced Notification Options** 
+section when setting up the blueprint.
+>[!IMPORTANT]
+> In order for the notifier to work the action must be notify.*name_of_notifier*. It does not work with the *notify.send_message* action.
+
 
 ### 3. IOS Notifications aren't showing the "Mark Done!" notification action, whats wrong?
 Apple devices running IOS do not show the notification actions automatically. On IOS you must *tap and hold* on the notification then the "Mark Done!" action will be displayed.
@@ -38,7 +42,7 @@ This is a limitation of IOS, and there is no way to change this functionality.
 > [!TIP]
 > If this is an issue I recommend putting a note in the task name or description, on each to-do list item, to remind you to tap and hold on the notification in order to mark it as done.
 
-## 📃 *When Chore is Completed* - Custom Actions After Task is Marked Done
+## 📃 *Post-Chore Actions* - Custom Actions After Task is Marked Done
 > [!IMPORTANT]
 > These actions will only run *if the task was marked done through the notification*!
 > If the task is marked done directly through the Home Assistant To-do list screen, or from the integration screen these actions will not run.

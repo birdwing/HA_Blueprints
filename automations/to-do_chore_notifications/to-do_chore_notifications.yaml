@@ -2,7 +2,7 @@ blueprint:
   name: To-do Chore Notifications
   author: birdwing
   homeassistant:
-    min_version: 2023.11.0
+    min_version: 2024.6.0
   description: >
     **Create actionable notifications from a Home Assistant To-do list!**
     
@@ -17,40 +17,78 @@ blueprint:
     - Through the **When chore is completed.** actions you can specify any actions you would like to happen after a task is marked as done.
   domain: automation
   input:
-    input_notification_time:
-      name: Notification Time
-      description: Time of day to send the notifications.
-      selector:
-        time:
-    input_todo_list:
-      name: To-do List
-      description: Select the To-do list you want to create Chore notifications from.
-      selector:
-        entity:
-          domain: todo
-    input_notify_devices:
-      name: Devices to Notify
-      description: What devices do you want to receive the notifications?
-      default: []
-      selector:
-        device:
-          integration: mobile_app
-          multiple: true
-    after_completed:
-      name: When chore is completed.
-      description: >
-        If you need something to happen after a chore is completed you can do so here.
-        **Note:** These actions will only run if the chore is marked done *via the notification*.
-        The **todo_item** variable will contain the name of the item on the To-do list that was marked completed.
-        This way to can use conditions to specify an action for a particular chore. For example you could use a counter helper to keep track of how much of something is "in stock" and when a specific chore is completed increment or decrement the counter.
-      selector:
-        action:
-      default:
+    section_standard:
+      name: Standard Options
+      description: Typical options that all users need to set for the notifications to work.
+      collapsed: false
+      input:
+        input_notification_time:
+          name: Notification Time
+          description: Time of day to send the notifications.
+          selector:
+            time:
+        input_todo_list:
+          name: To-do List
+          description: Select the To-do list you want to create Chore notifications from.
+          selector:
+            entity:
+              domain: todo
+        input_notify_devices:
+          name: Mobile App Devices to Notify
+          description: What mobile_app devices do you want to receive the notifications?
+          default: []
+          selector:
+            device:
+              integration: mobile_app
+              multiple: true
+    section_advanced_notification:
+      name: Advanced Notification Options
+      description: More advanced options that add complexity and flexibility for less typical setups.
+      collapsed: true
+      input:
+        input_notify_action_names:
+          name: Names of Notify Actions/Services
+          description: What custom [Notify Groups](https://www.home-assistant.io/integrations/group/#notify-groups) and other non-mobile-apps do you want to receive the notifications? This should be the group name, which is everything after `notify.` for the corresponding Action.
+          default: []
+          selector:
+            text:
+              multiline: false
+              multiple: true
+    section_post_chore_actions:
+      name: Post-Chore Actions
+      description: Actions that are run after a chore is completed.
+      collapsed: true
+      input:
+        # This input does not follow the input_* naming convention of the others.
+        # Perhaps it should be made consistent in a future release,
+        # but that would be a breaking change.
+        after_completed:
+          name: When chore is completed.
+          description: >
+            If you need something to happen after a chore is completed you can do so here.
+            **Note:** These actions will only run if the chore is marked done *via the notification*.
+            The **todo_item** variable will contain the name of the item on the To-do list that was marked completed.
+            This way to can use conditions to specify an action for a particular chore. For example you could use a counter helper to keep track of how much of something is "in stock" and when a specific chore is completed increment or decrement the counter.
+          selector:
+            action:
+          default:
 
 variables:
   selected_todo_list: !input input_todo_list
   notification_group: "{{selected_todo_list ~ ' chores'}}"
-  notify_devices: !input input_notify_devices
+  notify_mobile_devices: !input input_notify_devices
+  notify_action_names: !input input_notify_action_names
+  notify_action_full_names: |
+    {# If only list comprehensions worked... sigh. #}
+    {% set result_namespace = namespace(items=[]) %}
+    {% for mobile_device in notify_mobile_devices %}
+      {% set result_namespace.items = result_namespace.items + ["notify.mobile_app_" + slugify(device_attr(mobile_device, 'name'))] %}
+    {% endfor %}
+    {% for action_name in notify_action_names %}
+      {% set result_namespace.items = result_namespace.items + ["notify." + action_name] %}
+    {% endfor %}
+
+    {{ result_namespace.items }}
 trigger:
   - platform: time
     at: !input input_notification_time
@@ -89,9 +127,9 @@ action:
                   then:
                     - alias: Send notification to each device
                       repeat:
-                        for_each: "{{ notify_devices }}"
+                        for_each: "{{ notify_action_full_names }}"
                         sequence:
-                          - service: notify.mobile_app_{{ device_attr(repeat.item, 'name') | slugify }}
+                          - service: "{{ repeat.item }}"
                             data:
                               title: |
                                 {{ 'Chore - ' ~ chore.summary }}
@@ -142,9 +180,9 @@ action:
               entity_id: !input input_todo_list
           - alias: Clear All Notifications for this Chore, in case it was sent to more than 1 phone.
             repeat:
-              for_each: "{{ notify_devices }}"
+              for_each: "{{ notify_action_full_names }}"
               sequence:
-                - service: notify.mobile_app_{{ device_attr(repeat.item, 'name') | slugify }}
+                - service: "{{ repeat.item }}"
                   data:
                     message: clear_notification
                     data:
