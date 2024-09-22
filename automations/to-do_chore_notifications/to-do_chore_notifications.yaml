@@ -27,6 +27,17 @@ blueprint:
           description: Time of day to send the notifications.
           selector:
             time:
+        input_use_todo_time:
+          name: Use To-do Task Times
+          description: >
+            If selected notifications will be sent out based on the time on the To-do item.
+            If the To-do item doesn't have a time it will use the notification time.
+            By default the blueprint will check every 15 minutes for tasks that are due within the *next* 15 minutes.
+            So notifications will go out before the task is due.
+            How often tasks are checked can be altered in the Advanced Notification Options section.
+          default: false
+          selector:
+            boolean:
         input_todo_list:
           name: To-do List
           description: Select the To-do list you want to create Chore notifications from.
@@ -54,6 +65,19 @@ blueprint:
             text:
               multiline: false
               multiple: true
+        input_list_check_frequency:
+          name: Time Check Frequency
+          description: >
+            How often to check for tasks that are due, in minutes. (Default: 15)
+            **Use Caution** checking too often can put a strain on your system, especially if you have large To-do lists.
+            If you have a large To-do list and are having issues, try setting it to a higher value.
+          default: 15
+          selector:
+            number:
+              min: 1
+              max: 59
+              unit_of_measurement: "minutes"
+              mode: box
     section_post_chore_actions:
       name: Post-Chore Actions
       description: Actions that are run after a chore is completed.
