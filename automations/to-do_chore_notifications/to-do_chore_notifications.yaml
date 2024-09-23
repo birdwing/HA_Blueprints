@@ -113,10 +113,17 @@ variables:
     {% endfor %}
 
     {{ result_namespace.items }}
+  time_triggered: "{{now() | as_local}}"
+trigger_variables:
+  list_check_frequency: !input input_list_check_frequency
 trigger:
   - platform: time
     at: !input input_notification_time
     id: Notify
+  - platform: template
+    id: TimeNotify
+    value_template: "{{ now().minute % list_check_frequency == 0 }}"
+    enabled: !input input_use_todo_time
   - platform: event
     event_type: mobile_app_notification_action
     id: Mark
