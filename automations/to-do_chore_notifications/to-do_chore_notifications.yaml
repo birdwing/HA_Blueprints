@@ -156,6 +156,9 @@ action:
                 - variables:
                     chore: "{{ repeat.item }}"
                     chore_has_time: "{{ repeat.item.due | length > 10 }}"
+                    chore_due_datetime: "{{ repeat.item.due | default(0) | as_datetime | as_local }}"
+                    chore_due_date: "{{ strptime(chore_due_datetime.strftime('%Y-%m-%d'), '%Y-%m-%d') | as_local }}"
+                    chore_due_time: "{{ strptime(chore_due_datetime.strftime('%H:%M %z'), '%H:%M %z') }}"
                 - if:
                     - condition: or
                       conditions:
@@ -168,25 +171,18 @@ action:
                             - alias: Task has a time set and we are using task time
                               condition: template
                               value_template: "{{ chore_has_time }}"
-                            - alias: >-
-                                Task due date and time is before the next check
-                                time
+                            - alias: Task due date and time is before the next check time
                               condition: template
                               value_template: >-
-                                {{ chore.due | default(0) | as_datetime |
-                                as_local < strptime(((time_triggered |
-                                as_datetime | as_timestamp +
-                                (list_check_frequency * 60)) | as_datetime |
-                                as_local).strftime('%m/%d/%Y %H:%M
-                                %z'),'%m/%d/%Y %H:%M %z') }}
+                                {{ chore_due_datetime | as_timestamp 
+                                    < time_triggered | as_timestamp + (list_check_frequency * 60)
+                                }}
                             - alias: Task due time >= Time Triggered
                               condition: template
                               value_template: >-
-                                {{ strptime((chore.due | default(0) |
-                                as_datetime | as_local).strftime('%H:%M %z'),
-                                '%H:%M %z') >= strptime((time_triggered |
-                                as_datetime | as_local).strftime('%H:%M %z'),
-                                '%H:%M %z') }}
+                                {{ chore_due_time 
+                                    >= strptime(time_triggered.strftime('%H:%M %z'), '%H:%M %z')
+                                }}
                         - alias: Notification Time Conditions
                           condition: and
                           conditions:
@@ -196,18 +192,13 @@ action:
                             - alias: Task has no date/time or it's <= Time Triggered
                               condition: template
                               value_template: >-
-                                {{ strptime((chore.due | default(0, true) |
-                                as_datetime |
-                                as_local).strftime('%m/%d/%Y'),'%m/%d/%Y') |
-                                as_local <= time_triggered | as_datetime |
-                                as_local }}
-                            - alias: >-
-                                Task does not have a time set and we are using
-                                task time OR we are not using task time
+                                {{ chore_due_date <= time_triggered}}
+                            - alias: Task does not have a time set and we are using task time OR we are not using task time
                               condition: template
                               value_template: >-
                                 {{ (use_todo_time and chore_has_time == false)
-                                or (use_todo_time == false) }}
+                                    or (use_todo_time == false)
+                                }}
                   then:
                     - alias: Send notification to each device
                       repeat:
