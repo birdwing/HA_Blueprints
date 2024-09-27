@@ -114,7 +114,7 @@ variables:
     {% endfor %}
 
     {{ result_namespace.items }}
-  time_triggered: "{{now() | as_local}}"
+  time_triggered: "{{strptime(now().strftime('%Y-%m-%d %H:%M %z'), '%Y-%m-%d %H:%M %z')}}"
   list_check_frequency: !input input_list_check_frequency
 trigger_variables:
   list_check_frequency: !input input_list_check_frequency
