@@ -185,7 +185,8 @@ action:
                               condition: template
                               value_template: >-
                                 {{ chore_due_time | as_timestamp 
-                                    < time_triggered | as_timestamp + (list_check_frequency * 60)
+                                    < strptime((time_triggered | as_datetime).strftime('%H:%M %z'), '%H:%M %z') | as_timestamp 
+                                      + (list_check_frequency * 60)
                                 }}
                         - alias: Notification Time Conditions
                           condition: and
