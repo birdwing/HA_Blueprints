@@ -98,6 +98,7 @@ blueprint:
           default:
 
 variables:
+  use_todo_time: !input input_use_todo_time
   selected_todo_list: !input input_todo_list
   notification_group: "{{selected_todo_list ~ ' chores'}}"
   notify_mobile_devices: !input input_notify_devices
@@ -135,6 +136,7 @@ action:
           - condition: trigger
             id:
               - Notify
+              - TimeNotify
           - condition: numeric_state
             entity_id: !input input_todo_list
             above: 0
@@ -152,9 +154,59 @@ action:
               sequence:
                 - variables:
                     chore: "{{ repeat.item }}"
+                    chore_has_time: "{{ repeat.item.due | length > 10 }}"
                 - if:
-                    - condition: template
-                      value_template: "{{ chore.due | as_datetime | as_local <= now() }}"
+                    - condition: or
+                      conditions:
+                        - alias: To-do Task Time Conditions
+                          condition: and
+                          conditions:
+                            - condition: trigger
+                              id:
+                                - TimeNotify
+                            - alias: Task has a time set and we are using task time
+                              condition: template
+                              value_template: "{{ chore_has_time }}"
+                            - alias: >-
+                                Task due date and time is before the next check
+                                time
+                              condition: template
+                              value_template: >-
+                                {{ chore.due | default(0) | as_datetime |
+                                as_local < strptime(((time_triggered |
+                                as_datetime | as_timestamp +
+                                (list_check_frequency * 60)) | as_datetime |
+                                as_local).strftime('%m/%d/%Y %H:%M
+                                %z'),'%m/%d/%Y %H:%M %z') }}
+                            - alias: Task due time >= Time Triggered
+                              condition: template
+                              value_template: >-
+                                {{ strptime((chore.due | default(0) |
+                                as_datetime | as_local).strftime('%H:%M %z'),
+                                '%H:%M %z') >= strptime((time_triggered |
+                                as_datetime | as_local).strftime('%H:%M %z'),
+                                '%H:%M %z') }}
+                        - alias: Notification Time Conditions
+                          condition: and
+                          conditions:
+                            - condition: trigger
+                              id:
+                                - Notify
+                            - alias: Task has no date/time or it's <= Time Triggered
+                              condition: template
+                              value_template: >-
+                                {{ strptime((chore.due | default(0, true) |
+                                as_datetime |
+                                as_local).strftime('%m/%d/%Y'),'%m/%d/%Y') |
+                                as_local <= time_triggered | as_datetime |
+                                as_local }}
+                            - alias: >-
+                                Task does not have a time set and we are using
+                                task time OR we are not using task time
+                              condition: template
+                              value_template: >-
+                                {{ (use_todo_time and chore_has_time == false)
+                                or (use_todo_time == false) }}
                   then:
                     - alias: Send notification to each device
                       repeat:
