@@ -115,6 +115,7 @@ variables:
 
     {{ result_namespace.items }}
   time_triggered: "{{now() | as_local}}"
+  list_check_frequency: !input input_list_check_frequency
 trigger_variables:
   list_check_frequency: !input input_list_check_frequency
 trigger:
