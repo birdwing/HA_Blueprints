@@ -171,17 +171,21 @@ action:
                             - alias: Task has a time set and we are using task time
                               condition: template
                               value_template: "{{ chore_has_time }}"
-                            - alias: Task due date and time is before the next check time
+                            - alias: Task due date <= Time Triggered
                               condition: template
                               value_template: >-
-                                {{ chore_due_datetime | as_timestamp 
-                                    < time_triggered | as_timestamp + (list_check_frequency * 60)
-                                }}
+                                {{ chore_due_date | as_datetime <= time_triggered | as_datetime}}
                             - alias: Task due time >= Time Triggered
                               condition: template
                               value_template: >-
                                 {{ chore_due_time | as_datetime 
                                     >= strptime((time_triggered | as_datetime).strftime('%H:%M %z'), '%H:%M %z')
+                                }}
+                            - alias: Task due time < next check time
+                              condition: template
+                              value_template: >-
+                                {{ chore_due_time | as_timestamp 
+                                    < time_triggered | as_timestamp + (list_check_frequency * 60)
                                 }}
                         - alias: Notification Time Conditions
                           condition: and
