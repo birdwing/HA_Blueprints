@@ -157,8 +157,8 @@ action:
                     chore: "{{ repeat.item }}"
                     chore_has_time: "{{ repeat.item.due | length > 10 }}"
                     chore_due_datetime: "{{ repeat.item.due | default(0) | as_datetime | as_local }}"
-                    chore_due_date: "{{ strptime(chore_due_datetime.strftime('%Y-%m-%d'), '%Y-%m-%d') | as_local }}"
-                    chore_due_time: "{{ strptime(chore_due_datetime.strftime('%H:%M %z'), '%H:%M %z') }}"
+                    chore_due_date: "{{ strptime((chore_due_datetime | as_datetime).strftime('%Y-%m-%d'), '%Y-%m-%d') | as_local }}"
+                    chore_due_time: "{{ strptime((chore_due_datetime | as_datetime).strftime('%H:%M %z'), '%H:%M %z') }}"
                 - if:
                     - condition: or
                       conditions:
@@ -180,8 +180,8 @@ action:
                             - alias: Task due time >= Time Triggered
                               condition: template
                               value_template: >-
-                                {{ chore_due_time 
-                                    >= strptime(time_triggered.strftime('%H:%M %z'), '%H:%M %z')
+                                {{ chore_due_time | as_datetime 
+                                    >= strptime((time_triggered | as_datetime).strftime('%H:%M %z'), '%H:%M %z')
                                 }}
                         - alias: Notification Time Conditions
                           condition: and
@@ -192,7 +192,7 @@ action:
                             - alias: Task has no date/time or it's <= Time Triggered
                               condition: template
                               value_template: >-
-                                {{ chore_due_date <= time_triggered}}
+                                {{ chore_due_date | as_datetime <= time_triggered | as_datetime}}
                             - alias: Task does not have a time set and we are using task time OR we are not using task time
                               condition: template
                               value_template: >-
