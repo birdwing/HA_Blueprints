@@ -23,17 +23,17 @@ There are two options for how notifications are sent out:
 If an item doesn't have a due date, it will go out every day at the *Notification Time*.
 2. If *Use To-do Task Times* is toggled **on** the blueprint will generate 1 notification for each item **at the time the item is due**, for any item due today or on a previous day.  
 If the to-do item does not have a time or date set then the notification will go out at the specified *Notification Time*.
-  - For example. If todays date is **January 2nd** here is a list of to-do item due dates and times and when you will receive them:
-    - **No Date or Time** - Notification will be sent out at the *Notification Time*
-    - **January 1st** - Notification will be sent out at the *Notification Time*
-    - **January 1st @ 1:00PM** - Notification will be sent out at 1:00PM
-    - **January 2nd** - Notification will be sent out at the *Notification Time*
-    - ** January 2nd @ 2:16PM** - Notification will be sent out at 2:15PM (See note below about this).
-    - ** January 3rd @1:00PM** - Notification will *not* be sent out today because it is not due until tomorrow.
+    - For example. If todays date is **January 2nd** here is a list of to-do item due dates and times and when you will receive them:
+      - **No Date or Time** - Notification will be sent out at the *Notification Time*
+      - **January 1st** - Notification will be sent out at the *Notification Time*
+      - **January 1st @ 1:00PM** - Notification will be sent out at 1:00PM
+      - **January 2nd** - Notification will be sent out at the *Notification Time*
+      - ** January 2nd @ 2:16PM** - Notification will be sent out at 2:15PM (See note below about this).
+      - ** January 3rd @1:00PM** - Notification will *not* be sent out today because it is not due until tomorrow.
 >[!NOTE]
-> By default To-do items are checked every 15 minutes. This is why in the example above the item due at **2:16PM** was sent out at 2:15PM.
-> It checks every 15 minutes and creates notifications for any item that is due before the next time it checks. So items are sent out *before* they are due rather than after they are due in these cases.
-> How often tasks are checked can be altered in the Advanced Notification Options section by updating the *Time Check Frequency* setting.
+> By default To-do items are checked every 15 minutes. This is why in the example above the item due at **2:16PM** was sent out at 2:15PM.  
+> It checks every 15 minutes and creates notifications for any item that is due before the next time it checks. So items are sent out *before* they are due rather than after they are due in these cases.  
+> How often tasks are checked can be altered in the Advanced Notification Options section by updating the *Time Check Frequency* setting.  
 > **Use Caution** checking too often can put a strain on your system, especially if you have large To-do lists. If you have a large To-do list and are having issues, try setting it to a higher value.
 
 ## 📗 F.A.Q
