@@ -27,6 +27,17 @@ blueprint:
           description: Time of day to send the notifications.
           selector:
             time:
+        input_use_todo_time:
+          name: Use To-do Task Times
+          description: >
+            If selected notifications will be sent out based on the time on the To-do item.
+            If the To-do item doesn't have a time it will use the notification time.
+            By default the blueprint will check every 15 minutes for tasks that are due within the *next* 15 minutes.
+            So notifications will go out before the task is due.
+            How often tasks are checked can be altered in the Advanced Notification Options section.
+          default: false
+          selector:
+            boolean:
         input_todo_list:
           name: To-do List
           description: Select the To-do list you want to create Chore notifications from.
@@ -54,6 +65,19 @@ blueprint:
             text:
               multiline: false
               multiple: true
+        input_list_check_frequency:
+          name: Time Check Frequency
+          description: >
+            How often to check for tasks that are due, in minutes. (Default: 15)
+            **Use Caution** checking too often can put a strain on your system, especially if you have large To-do lists.
+            If you have a large To-do list and are having issues, try setting it to a higher value.
+          default: 15
+          selector:
+            number:
+              min: 1
+              max: 59
+              unit_of_measurement: "minutes"
+              mode: box
     section_post_chore_actions:
       name: Post-Chore Actions
       description: Actions that are run after a chore is completed.
@@ -74,6 +98,7 @@ blueprint:
           default:
 
 variables:
+  use_todo_time: !input input_use_todo_time
   selected_todo_list: !input input_todo_list
   notification_group: "{{selected_todo_list ~ ' chores'}}"
   notify_mobile_devices: !input input_notify_devices
@@ -89,10 +114,18 @@ variables:
     {% endfor %}
 
     {{ result_namespace.items }}
+  time_triggered: "{{strptime(now().strftime('%Y-%m-%d %H:%M %z'), '%Y-%m-%d %H:%M %z')}}"
+  list_check_frequency: !input input_list_check_frequency
+trigger_variables:
+  list_check_frequency: !input input_list_check_frequency
 trigger:
   - platform: time
     at: !input input_notification_time
     id: Notify
+  - platform: template
+    id: TimeNotify
+    value_template: "{{ now().minute % list_check_frequency == 0 }}"
+    enabled: !input input_use_todo_time
   - platform: event
     event_type: mobile_app_notification_action
     id: Mark
@@ -104,6 +137,7 @@ action:
           - condition: trigger
             id:
               - Notify
+              - TimeNotify
           - condition: numeric_state
             entity_id: !input input_todo_list
             above: 0
@@ -121,9 +155,55 @@ action:
               sequence:
                 - variables:
                     chore: "{{ repeat.item }}"
+                    chore_has_time: "{{ repeat.item.due | length > 10 }}"
+                    chore_due_datetime: "{{ repeat.item.due | default(0) | as_datetime | as_local }}"
+                    chore_due_date: "{{ strptime((chore_due_datetime | as_datetime).strftime('%Y-%m-%d'), '%Y-%m-%d') | as_local }}"
+                    chore_due_time: "{{ strptime((chore_due_datetime | as_datetime).strftime('%H:%M %z'), '%H:%M %z') }}"
                 - if:
-                    - condition: template
-                      value_template: "{{ chore.due | as_datetime | as_local <= now() }}"
+                    - condition: or
+                      conditions:
+                        - alias: To-do Task Time Conditions
+                          condition: and
+                          conditions:
+                            - condition: trigger
+                              id:
+                                - TimeNotify
+                            - alias: Task has a time set and we are using task time
+                              condition: template
+                              value_template: "{{ chore_has_time }}"
+                            - alias: Task due date <= Time Triggered
+                              condition: template
+                              value_template: >-
+                                {{ chore_due_date | as_datetime <= time_triggered | as_datetime}}
+                            - alias: Task due time >= Time Triggered
+                              condition: template
+                              value_template: >-
+                                {{ chore_due_time | as_datetime 
+                                    >= strptime((time_triggered | as_datetime).strftime('%H:%M %z'), '%H:%M %z')
+                                }}
+                            - alias: Task due time < next check time
+                              condition: template
+                              value_template: >-
+                                {{ chore_due_time | as_timestamp 
+                                    < strptime((time_triggered | as_datetime).strftime('%H:%M %z'), '%H:%M %z') | as_timestamp 
+                                      + (list_check_frequency * 60)
+                                }}
+                        - alias: Notification Time Conditions
+                          condition: and
+                          conditions:
+                            - condition: trigger
+                              id:
+                                - Notify
+                            - alias: Task has no date/time or it's <= Time Triggered
+                              condition: template
+                              value_template: >-
+                                {{ chore_due_date | as_datetime <= time_triggered | as_datetime}}
+                            - alias: Task does not have a time set and we are using task time OR we are not using task time
+                              condition: template
+                              value_template: >-
+                                {{ (use_todo_time and chore_has_time == false)
+                                    or (use_todo_time == false)
+                                }}
                   then:
                     - alias: Send notification to each device
                       repeat:
