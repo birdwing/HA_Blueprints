@@ -24,7 +24,7 @@ Here is a list of each of my blueprints, a quick description, an import link for
 
 This is an automation Blueprint that generates actionable notifications from a Home Assistant To-do list.
 **Actions will still work even after Home Assistant is restarted!**
-These actionable notifications are sent every day at the time you specify, to the devices that you select.
+These actionable notifications are sent every day either all at once at the time you specify or 1 notification fore each to-do item at the time the item is due. Notifications are sent to the devices that you select.
 It will generate 1 notification for each passed due item, with the ability to mark the item as completed right from the notification.
 Once an item is marked completed the notification is cleared from *all devices* that it was sent to. That way everyone knows it was done.
 There is also an optional *When chore is completed* actions section. This allows you to define actions to run when any chore is marked complete (from the notification). There is also a variable called "todo_item" which holds the name of the completed action. Using this variable along with conditions it is possible to run different actions based on the name of the completed chore.
@@ -33,4 +33,4 @@ There is also an optional *When chore is completed* actions section. This allows
 
 #### 📂 Files
 * [to-do_chore_notifications.yaml](automations/to-do_chore_notifications/to-do_chore_notifications.yaml)
-* [README.md](automations/to-do_chore_notifications/to-do_chore_notifications.md)
+* [README.md](automations/to-do_chore_notifications#readme)
