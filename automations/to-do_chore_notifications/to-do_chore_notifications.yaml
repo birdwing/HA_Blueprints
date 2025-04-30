@@ -145,7 +145,7 @@ action:
             entity_id: !input input_todo_list
             above: 0
         sequence:
-          - service: todo.get_items
+          - action: todo.get_items
             metadata: {}
             data:
               status: needs_action
@@ -212,7 +212,7 @@ action:
                       repeat:
                         for_each: "{{ notify_action_full_names }}"
                         sequence:
-                          - service: "{{ repeat.item }}"
+                          - action: "{{ repeat.item }}"
                             data:
                               title: |
                                 {{ 'Chore - ' ~ chore.summary }}
@@ -254,7 +254,7 @@ action:
                 {% else %}
                   {{ trigger.event.data.tag }}
                 {% endif %}
-          - service: todo.update_item
+          - action: todo.update_item
             metadata: {}
             data:
               item: "{{ todo_item }}"
@@ -265,7 +265,7 @@ action:
             repeat:
               for_each: "{{ notify_action_full_names }}"
               sequence:
-                - service: "{{ repeat.item }}"
+                - action: "{{ repeat.item }}"
                   data:
                     message: clear_notification
                     data:
