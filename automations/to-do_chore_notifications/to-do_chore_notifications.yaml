@@ -43,15 +43,18 @@ blueprint:
           description: Select the To-do list you want to create Chore notifications from.
           selector:
             entity:
-              domain: todo
+              multiple: false
+              filter:
+                domain: todo
         input_notify_devices:
           name: Mobile App Devices to Notify
           description: What mobile_app devices do you want to receive the notifications?
           default: []
           selector:
             device:
-              integration: mobile_app
               multiple: true
+              filter:
+                - integration: mobile_app
     section_advanced_notification:
       name: Advanced Notification Options
       description: More advanced options that add complexity and flexibility for less typical setups.
@@ -118,15 +121,15 @@ variables:
   list_check_frequency: !input input_list_check_frequency
 trigger_variables:
   list_check_frequency: !input input_list_check_frequency
-trigger:
-  - platform: time
+triggers:
+  - trigger: time
     at: !input input_notification_time
     id: Notify
-  - platform: template
+  - trigger: template
     id: TimeNotify
     value_template: "{{ now().minute % list_check_frequency == 0 }}"
     enabled: !input input_use_todo_time
-  - platform: event
+  - trigger: event
     event_type: mobile_app_notification_action
     id: Mark
     event_data: {}
