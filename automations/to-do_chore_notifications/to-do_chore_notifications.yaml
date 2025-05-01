@@ -219,6 +219,10 @@ action:
                               message: >
                                 {{ chore.description | default('You have a chore to complete!') }}
                               data:
+                                # url for ios, clickAction for Android
+                                # https://companion.home-assistant.io/docs/notifications/notifications-basic/#opening-a-url
+                                url: "{{ 'homeassistant://navigate/todo?entity_id=' ~ selected_todo_list }}"
+                                clickAction: "{{ 'homeassistant://navigate/todo?entity_id=' ~ selected_todo_list }}"
                                 actions:
                                   - action: "{{ selected_todo_list ~ ' ' ~ chore.uid }}"
                                     title: Mark Done!
